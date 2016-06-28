@@ -1,5 +1,10 @@
 # coding=utf-8
 # __author__ = 'Mio'
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir)))
+
 import tornado.web
 import tornado.ioloop
 import tornado.httpserver
@@ -19,8 +24,8 @@ class Application(tornado.web.Application):
         connect(MONGODB_NAME, **MONGODB_CONFIG)
         tornado.web.Application.__init__(self, urls, **SETTINGS)
 
-application = Application()
 
+application = Application()
 
 if __name__ == "__main__":
     parse_command_line()
