@@ -1,7 +1,7 @@
 # coding=utf-8
 # __author__ = 'Mio'
 
-from utils.web.base import BaseRequestHandler
+from tools.web.base import BaseRequestHandler
 
 
 class HomePageHandler(BaseRequestHandler):

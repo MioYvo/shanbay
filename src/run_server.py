@@ -21,6 +21,7 @@ define("port", default=5555, help="run on the given port", type=int)
 
 class Application(tornado.web.Application):
     def __init__(self):
+        # 连接MongoDB
         connect(MONGODB_NAME, **MONGODB_CONFIG)
         tornado.web.Application.__init__(self, urls, **SETTINGS)
 
