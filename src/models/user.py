@@ -11,6 +11,7 @@ class User(Document):
     name = StringField(max_length=24, help_text="用户名")
     scope = StringField(max_length=12, help_text="背诵范围")
     quota = IntField(max_value=500, help_text="每日单词配额")
+    hashed_password = StringField(max_length=64, help_text="密码hash")
     create_time = DateTimeField(default=TimeZone.utc_now, help_text="创建时间")
     update_time = DateTimeField(default=None, help_text="创建时间")
 
@@ -20,8 +21,8 @@ class User(Document):
             'create_time',
         ],
         'indexes': [
-            "name",
-            "create_time"
+            "create_time",
+            {"fields": ["name"], "unique": True}
         ]
     }
 

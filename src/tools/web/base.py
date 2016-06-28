@@ -14,6 +14,13 @@ class BaseRequestHandler(tornado.web.RequestHandler):
     def __init__(self, *args, **kwargs):
         super(BaseRequestHandler, self).__init__(*args, **kwargs)
 
+    def get_current_user(self):
+        user_id = self.get_secure_cookie("shanbay_user")
+        if not user_id:
+            return None
+        return user_id
+
+
     def get_query_args(self):
         """
         获取query_arguments，同一key有重复值时只取值列表最后一个

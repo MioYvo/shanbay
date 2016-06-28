@@ -9,6 +9,8 @@ urls = [
 
 # 用户
 urls += [
+    (r"/login", user_handler.LoginHandler),
+    (r"/logout", user_handler.LogoutHandler),
     # 获取、创建用户信息
     (r"/user", user_handler.UseHandler),
 ]

@@ -2,16 +2,23 @@
 # __author__ = 'Mio'
 import logging
 
+import bcrypt
+from tornado.escape import utf8
+from mongoengine import DoesNotExist
+from tornado.web import authenticated
 from schema import Schema, Use
 
 from models.user import User
 from tools.web.base import BaseRequestHandler
 from tools.web.escape import schema_utf8
+from tools.web.http_code import HTTP_201_CREATED
 
 
 class UseHandler(BaseRequestHandler):
     # 获取用户信息
+    @authenticated
     def get(self):
+        print self.current_user
         self.write_response(content=[user.format_response() for user in User.objects()])
 
     # 注册用户
@@ -26,15 +33,18 @@ class UseHandler(BaseRequestHandler):
             return
 
         # 存储
-        new_user = User(name=data['name'], scope=data['scope'], quota=data['quota']).save()
-        self.write_response(content=new_user.format_response())
+        hashed_password = bcrypt.hashpw(data['password'], bcrypt.gensalt())
+        new_user = User(name=data['name'], scope=data['scope'], quota=data['quota'],
+                        hashed_password=hashed_password).save()
+        self.write_response(content=new_user.format_response(), status_code=HTTP_201_CREATED)
 
     def post_schema(self):
         try:
             data = Schema({
                 "name": schema_utf8,
                 "scope": schema_utf8,
-                "quota": Use(int)
+                "quota": Use(int),
+                "password": schema_utf8
             }).validate(self.get_body_args())
         except Exception as e:
             logging.error(e)
@@ -54,3 +64,32 @@ class UseHandler(BaseRequestHandler):
     # 删除用户
     def delete(self):
         pass
+
+
+class LoginHandler(BaseRequestHandler):
+    def get(self):
+        # If there are no authors, redirect to the account creation page.
+        self.render("login.html", error=None)
+
+    def post(self):
+        try:
+            user = User.objects(name=self.get_argument('name')).get()
+        except DoesNotExist:
+            self.render("login.html", error="name not found")
+            return
+
+        hashed_password = bcrypt.hashpw(utf8(self.get_argument("password")),
+                                        utf8(user.hashed_password))
+        if hashed_password == user.hashed_password:
+            self.set_secure_cookie("shanbay_user", str(user.id))
+            self.redirect(self.get_argument("next", "/"))
+        else:
+            logging.error("incorrect password")
+            self.render("login.html", error="incorrect password")
+
+
+class LogoutHandler(BaseRequestHandler):
+    def get(self):
+        self.clear_cookie("shanbay_user")
+        self.redirect(self.get_argument("next", "/"))
+
