@@ -12,3 +12,7 @@ function getFormData($form) {
 
     return indexed_array;
 }
+
+function redirect_to_home($path) {
+    window.location = "http://localhost:5555/" + $path;
+}

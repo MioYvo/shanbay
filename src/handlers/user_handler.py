@@ -11,7 +11,15 @@ from schema import Schema, Use
 from models.user import User
 from tools.web.base import BaseRequestHandler
 from tools.web.escape import schema_utf8
-from tools.web.http_code import HTTP_201_CREATED
+from tools.web.http_code import HTTP_201_CREATED, HTTP_403_FORBIDDEN
+
+
+class RegisterHandler(BaseRequestHandler):
+    def get(self):
+        if self.get_current_user():
+            # 如果已登录, 则注销
+            self.clear_cookie("shanbay_user")
+        self.render("register.html")
 
 
 class UseHandler(BaseRequestHandler):
@@ -31,6 +39,9 @@ class UseHandler(BaseRequestHandler):
         data = self.post_schema()
         if not data:
             return
+        if self.get_current_user():
+            self.set_status(status_code=HTTP_403_FORBIDDEN)
+            return
 
         # 判断重复
         if User.objects(name=data['name']).all():
@@ -41,7 +52,12 @@ class UseHandler(BaseRequestHandler):
         hashed_password = bcrypt.hashpw(data['password'], bcrypt.gensalt())
         new_user = User(name=data['name'], scope=data['scope'], quota=data['quota'],
                         hashed_password=hashed_password).save()
-        self.write_response(content=new_user.format_response(), status_code=HTTP_201_CREATED)
+
+        self.set_secure_cookie("shanbay_user", str(new_user.id))
+        self.render("home.html")
+        return
+        # self.redirect("/")
+        # self.write_response(content=new_user.format_response(), status_code=HTTP_201_CREATED)
 
     def post_schema(self):
         try:
@@ -58,10 +74,6 @@ class UseHandler(BaseRequestHandler):
         else:
             return data
 
-    # 修改用户
-    def put(self):
-        pass
-
     # 修改用户属性
     def patch(self):
         data = self.patch_schema()
@@ -76,7 +88,8 @@ class UseHandler(BaseRequestHandler):
         user.scope = data['scope']
         user.quota = data['quota']
         user.save()
-        self.render("user.html", user=user.format_response())
+        self.write_response(content=user.format_response(), status_code=HTTP_201_CREATED)
+        return
 
     def patch_schema(self):
         try:
@@ -122,4 +135,3 @@ class LogoutHandler(BaseRequestHandler):
     def get(self):
         self.clear_cookie("shanbay_user")
         self.redirect(self.get_argument("next", "/"))
-

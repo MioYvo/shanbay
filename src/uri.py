@@ -13,4 +13,5 @@ urls += [
     (r"/logout", user_handler.LogoutHandler),
     # 获取、创建用户信息
     (r"/user", user_handler.UseHandler),
+    (r"/register", user_handler.RegisterHandler),
 ]

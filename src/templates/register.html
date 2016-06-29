@@ -5,22 +5,26 @@
             <a href="#" class="close" data-dismiss="alert">&times;</a>
             <strong>Success！</strong>
         </div>
-<h2>Profile</h2>
+<h2>Register</h2>
 
 <div class="row">
-    <form class="login" action="">
+    <form class="register" action="">
         <div class="col-md-5">
             <table class="table table-bordered table-hover table-condensed">
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>profile</th>
+                    <th>info</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
                     <td>name</td>
-                    <td>{{user["name"]}}</td>
+                    <td>
+                        <label for="name">
+                            <input id="name" type="text" name="name">
+                        </label>
+                    </td>
                 </tr>
                 <tr>
                     <td>scope</td>
@@ -28,11 +32,7 @@
                         <label>
                             <select class="form-control" name="scope">
                                 {% for i in ["CET-4", "CET-6", "IELTS", "TOEFL"] %}
-                                {% if i == user["scope"] %}
-                                <option selected>{{i}}</option>
-                                {% else %}
                                 <option>{{i}}</option>
-                                {% end %}
                                 {% end %}
                             </select>
                         </label>
@@ -40,17 +40,20 @@
                 </tr>
                 <tr>
                     <td>quota</td>
-                    <td><input id="quota" type="text" name="quota" class="form-control" value="{{user["quota"]}}"
-                        placeholder="{{user["quota"]}}">
+                    <td>
+                        <label for="quota">
+                            <input id="quota" type="text" name="quota">
+                        </label>
                     </td>
                 </tr>
+
                 <tr>
-                    <td>id</td>
-                    <td>{{user["id"]}}</td>
-                </tr>
-                <tr>
-                    <td>create time</td>
-                    <td>{{user["create_time"]}}</td>
+                    <td>password</td>
+                    <td>
+                        <label for="quota">
+                            <input id="password" type="password" name="password">
+                        </label>
+                    </td>
                 </tr>
 
                 </tbody>
@@ -66,17 +69,16 @@
 <script>
     $(document).ready(function () {
         $('#submit').click(function () {
-            var $form = $("form.login");
+            var $form = $("form.register");
             var data = getFormData($form);
             $.ajax({
-                type: "PATCH",
+                type: "POST",
                 url: "/user",
                 data: JSON.stringify(data),
                 contentType: "application/json",
                 success: function (json) {
                     $("#myAlert").show();
-                    redirect_to_home().delay(1);
-//                    alert("Saved")
+                    redirect_to_home("").delay(2000);
                 }
             });
 

@@ -7,7 +7,6 @@ from tools.web.base import BaseRequestHandler
 class HomePageHandler(BaseRequestHandler):
     def get(self):
         self.render("home.html")
-        # self.write_response("welcome {}".format(self.current_user))
 
     def post(self):
         pass
