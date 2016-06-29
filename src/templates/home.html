@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block body %}
+    <h1>bdc</h1>
+    <p>shanbay homework</p>
+    <!--<p>开始背单词吧</p>-->
+    <p>
+        {% if current_user %}
+        <a class="btn btn-lg btn-primary" href="/bdc" role="button">Let's go &raquo;</a>
+        {% else %}
+        <a class="btn btn-lg btn-primary" href="/login" role="button">Login</a>
+        {% end %}
+    </p>
+{% end %}
+

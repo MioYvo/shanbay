@@ -15,4 +15,7 @@ SETTINGS = {
     "xsrf_cookies": False,
     "template_path": os.path.join(os.path.dirname(__file__), os.pardir, "templates"),
     "static_path": os.path.join(os.path.dirname(__file__), os.pardir, "static"),
+    # 相对目录 localhost:5555/......
+    "css_path": "static/css/",
+    "js_path": "static/js/",
 }

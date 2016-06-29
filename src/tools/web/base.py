@@ -8,6 +8,8 @@ import tornado.web
 from tools.web.error_code import ERR_UNKNOWN, ERR_NO_CONTENT, ERR_MULTIPLE_OBJ_RETURNED, ERR_DUPLICATE_ENTRY, ERR_ARG
 from tools.web.http_code import (HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_400_BAD_REQUEST,
                                  HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN)
+from models.user import User
+from bson import ObjectId
 
 
 class BaseRequestHandler(tornado.web.RequestHandler):
@@ -18,7 +20,8 @@ class BaseRequestHandler(tornado.web.RequestHandler):
         user_id = self.get_secure_cookie("shanbay_user")
         if not user_id:
             return None
-        return user_id
+        user = User.objects(pk=ObjectId(user_id)).get()
+        return user.name
 
 
     def get_query_args(self):
