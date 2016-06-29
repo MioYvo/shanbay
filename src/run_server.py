@@ -11,7 +11,7 @@ import tornado.httpserver
 from tornado.log import app_log
 from tornado.options import define, options, parse_command_line
 
-from uri import urls
+from uri import uris
 from settings.app_setting import SETTINGS
 from settings.mongo_setting import MONGODB_NAME, MONGODB_CONFIG
 from mongoengine import connect
@@ -23,7 +23,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         # 连接MongoDB
         connect(MONGODB_NAME, **MONGODB_CONFIG)
-        tornado.web.Application.__init__(self, urls, **SETTINGS)
+        tornado.web.Application.__init__(self, uris, **SETTINGS)
 
 
 application = Application()

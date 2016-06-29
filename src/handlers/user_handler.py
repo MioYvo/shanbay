@@ -111,7 +111,6 @@ class UseHandler(BaseRequestHandler):
 
 class LoginHandler(BaseRequestHandler):
     def get(self):
-        # If there are no authors, redirect to the account creation page.
         self.render("login.html", error=None)
 
     def post(self):

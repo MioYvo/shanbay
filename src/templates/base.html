@@ -21,11 +21,11 @@
   <title>你瞅啥</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ handler.settings["css_path"] + "bootstrap.min.css"}}">
-  <link href="{{ handler.settings["css_path"] + "navbar-fixed-top.css" }}" rel="stylesheet">
-  <script src="{{ handler.settings["js_path"] + "jquery.min.js"}}"></script>
-  <script src="{{ handler.settings["js_path"] + "bootstrap.min.js"}}"></script>
-  <script src="{{ handler.settings["js_path"] + "form_to_json.js"}}"></script>
+  <link rel="stylesheet" href="{{ static_url("css/bootstrap.min.css")}}">
+  <link href="{{ static_url("css/navbar-fixed-top.css") }}" rel="stylesheet">
+  <script src="{{ static_url("js/jquery.min.js")}}"></script>
+  <script src="{{ static_url("js/bootstrap.min.js")}}"></script>
+  <script src="{{ static_url("js/form_to_json.js")}}"></script>
 
 
   {% block head %}{% end %}

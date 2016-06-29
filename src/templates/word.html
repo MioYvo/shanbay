@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link href="{{ static_url("css/blog.css") }}" rel="stylesheet">
+{% end %}
+
+{% block body %}
+{% if error %}
+<h4 class="form-signin-heading" style="color: red">Error: {{ error }}</h4>
+{% end %}
+    {% if word %}
+        <div class="col-md-5">
+            <h2>{{ word["word"] }}</h2>
+        </div>
+            <button class="btn btn-lg btn-info" href="/"> finish</button>
+            <button class="btn btn-lg btn-warning" href="/"> add to list</button>
+
+        <hr>
+        <p>explanation</p>
+        {% for explanation in word["explanation"] %}
+        <h3>{{ explanation }}</h3>
+        {% end %}
+
+        <hr>
+        <p>example</p>
+        {% for example in word["example"] %}
+        <h4>{{ example["eng"] }}</h4>
+        <p>{{ example["chin"] }}</p>
+        <p style="font-size: 15px">{{ example["origin"] }}</p>
+        <br>
+        {% end %}
+
+        <hr>
+        <p>scope</p>
+        <h4>
+            {% for scope in word["scope"] %}
+            <div class="label" style="color: green;font-size: 15px">
+                {{ scope }}
+            </div>
+            {% end %}
+        </h4>
+
+
+        <!-- need format to url -->
+        <hr>
+        <p>synonyms</p>
+        {% for synonyms in word["synonyms"] %}
+        <h4>{{ synonyms }}</h4>
+        {% end %}
+        {% end %}
+{% end %}
