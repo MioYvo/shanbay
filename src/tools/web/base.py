@@ -23,7 +23,6 @@ class BaseRequestHandler(tornado.web.RequestHandler):
         user = User.objects(pk=ObjectId(user_id)).get()
         return user.name
 
-
     def get_query_args(self):
         """
         获取query_arguments，同一key有重复值时只取值列表最后一个

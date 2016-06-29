@@ -5,7 +5,7 @@ import logging
 import bcrypt
 from tornado.escape import utf8
 from mongoengine import DoesNotExist
-from tornado.web import authenticated
+from tornado.web import authenticated, Finish
 from schema import Schema, Use
 
 from models.user import User
@@ -19,7 +19,12 @@ class UseHandler(BaseRequestHandler):
     @authenticated
     def get(self):
         print self.current_user
-        self.write_response(content=[user.format_response() for user in User.objects()])
+        user = self.get_current_user()
+        if not user:
+            self.redirect("/login")
+            return
+        user = User.objects(name=user).get()
+        self.render("user.html", user=user.format_response())
 
     # 注册用户
     def post(self):
@@ -59,7 +64,32 @@ class UseHandler(BaseRequestHandler):
 
     # 修改用户属性
     def patch(self):
-        pass
+        data = self.patch_schema()
+        user = self.get_current_user()
+
+        if user:
+            user = User.objects(name=user).get()
+        else:
+            self.redirect("/login")
+            return
+
+        user.scope = data['scope']
+        user.quota = data['quota']
+        user.save()
+        self.render("user.html", user=user.format_response())
+
+    def patch_schema(self):
+        try:
+            data = Schema({
+                "scope": schema_utf8,
+                "quota": Use(int)
+            }).validate(self.get_body_args())
+        except Exception as e:
+            logging.error(e)
+            self.write_parse_args_failed_response(content=e.message)
+            raise Finish
+        else:
+            return data
 
     # 删除用户
     def delete(self):

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h2>Profile</h2>
+<div class="row">
+    <form class="login">
+        <div class="col-md-5">
+            <table class="table table-bordered table-hover table-condensed">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>profile</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>name</td>
+                    <td>{{user["name"]}}</td>
+                </tr>
+                <tr>
+                    <td>scope</td>
+                    <td>
+                        <label>
+                            <select class="form-control" name="scope">
+                                {% for i in ["CET-4", "CET-6", "IELTS", "TOEFL"] %}
+                                {% if i == user["scope"] %}
+                                <option selected>{{i}}</option>
+                                {% else %}
+                                <option>{{i}}</option>
+                                {% end %}
+                                {% end %}
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>quota</td>
+                    <td><input id="quota" type="text" name="quota" class="form-control" value="{{user["quota"]}}" placeholder="{{user["quota"]}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>id</td>
+                    <td>{{user["id"]}}</td>
+                </tr>
+                <tr>
+                    <td>create time</td>
+                    <td>{{user["create_time"]}}</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-7">
+            <button id="submit" class="btn btn-default btn-info">Save changes</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#submit').click(function () {
+            var $form = $("form.login");
+            var data = getFormData($form);
+            $.ajax({
+                type: "PATCH",
+                url: "/user",
+                data: JSON.stringify(data),
+                contentType: "application/json"
+            });
+
+        });
+
+    });
+
+</script>
+{% end %}
