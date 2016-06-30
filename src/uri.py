@@ -20,6 +20,7 @@ uris += [
 uris += [
     # 背单词
     (r"/words/recite", words_handler.ReciteWordsHandler),
+    (r"/words/recite/(.+)", words_handler.OneWordReciteHandler),
     # 单词页面
     (r"/word/details/(.+)", words_handler.OneWordHandler),
 ]

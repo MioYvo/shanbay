@@ -1,34 +1,31 @@
 # coding=utf-8
 # __author__ = 'Mio'
 
-from mongoengine import (Document, DateTimeField, StringField, ListField, DictField)
+from mongoengine import (Document, DateTimeField, StringField, ListField, ReferenceField, DictField)
 
 from tools.gmongoengine import field_to_json
 from tools.gtz import TimeZone
+from models.user import User
 
-SCOPE_CET4 = "CET-4"
-SCOPE_CET6 = "CET-6"
-SCOPE_LELTS = "LELTS"
-SCOPE_TOEFL = "TOEFL"
+WORD_FINISHED = "FINISHED"
+WORD_UNDO = "UNDO"
 
 
-class Word(Document):
-    word = StringField(max_length=32, help_text="单词")
-    explanation = ListField(StringField(max_length=256), help_text="解释")
-    example = ListField(DictField(default={}), default=[], help_text="例句")
-    scope = ListField(StringField(max_length=12), default=[], help_text="范围")
-    synonyms = ListField(StringField(max_length=32, help_text="单词"), default=[], help_text="近义词")
+class Record(Document):
+    user = ReferenceField(User, help_text="用户")
+    words = ListField(DictField(), default=[], help_text="单词列表")
+    status = StringField(max_length=12, help_text="状态")
 
     create_time = DateTimeField(default=TimeZone.utc_now, help_text="创建时间")
     update_time = DateTimeField(default=None, help_text="创建时间")
 
     meta = {
-        'collection': "word",
+        'collection': "record",
         'ordering': [
             "create_time"
         ],
         'indexes': [
-            {"fields": ["word"], "unique": True}
+            "create_time"
         ]
     }
 
