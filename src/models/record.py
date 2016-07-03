@@ -7,14 +7,17 @@ from tools.gmongoengine import field_to_json
 from tools.gtz import TimeZone
 from models.user import User
 
-WORD_FINISHED = "FINISHED"
-WORD_UNDO = "UNDO"
+WORD_FINISHED = "WORD_FINISHED"
+WORD_UNDONE = "WORD_UNDONE"
+
+RECORD_FINISHED = "RECORD_FINISHED"
+RECORD_UNDONE = "RECORD_UNDONE"
 
 
 class Record(Document):
     user = ReferenceField(User, help_text="用户")
     words = ListField(DictField(), default=[], help_text="单词列表")
-    status = StringField(max_length=12, help_text="状态")
+    status = StringField(default=RECORD_UNDONE, max_length=24, help_text="状态")
 
     create_time = DateTimeField(default=TimeZone.utc_now, help_text="创建时间")
     update_time = DateTimeField(default=None, help_text="创建时间")

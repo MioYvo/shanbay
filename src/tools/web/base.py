@@ -6,6 +6,7 @@ import ujson as json
 import tornado.web
 from mongoengine import DoesNotExist
 
+from models.record import Record
 from tools.web.error_code import ERR_UNKNOWN, ERR_NO_CONTENT, ERR_MULTIPLE_OBJ_RETURNED, ERR_DUPLICATE_ENTRY, ERR_ARG
 from tools.web.http_code import (HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_400_BAD_REQUEST,
                                  HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN)
@@ -20,14 +21,16 @@ class BaseRequestHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         user_id = self.get_secure_cookie("shanbay_user")
         if not user_id:
-            return None
+            self.redirect("/login")
+            raise tornado.web.Finish
         user = User.objects(pk=ObjectId(user_id)).get()
         return user.name
 
     def get_current_user_mongo(self):
         user_id = self.get_secure_cookie("shanbay_user")
         if not user_id:
-            return None
+            self.redirect("/login")
+            raise tornado.web.Finish
         else:
             try:
                 user = User.objects(pk=ObjectId(user_id)).get()
@@ -37,6 +40,20 @@ class BaseRequestHandler(tornado.web.RequestHandler):
                 raise tornado.web.Finish
             else:
                 return user
+
+    def get_current_record(self):
+        record_id = self.get_secure_cookie("record_id")
+        if not record_id:
+            return None
+        else:
+            try:
+                record = Record.objects(pk=ObjectId(record_id)).get()
+            except DoesNotExist:
+                self.clear_cookie("record_id")
+                self.redirect(self.get_argument("next", "/"))
+                raise tornado.web.Finish
+            else:
+                return record
 
     def get_query_args(self):
         """
