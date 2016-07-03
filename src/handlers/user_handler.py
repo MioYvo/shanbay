@@ -29,7 +29,7 @@ class UseHandler(BaseRequestHandler):
         print self.current_user
         user = self.get_current_user()
         if not user:
-            self.redirect("/login")
+            self.render("/login")
             return
         user = User.objects(name=user).get()
         self.render("user.html", user=user.format_response())
@@ -82,13 +82,14 @@ class UseHandler(BaseRequestHandler):
         if user:
             user = User.objects(name=user).get()
         else:
-            self.redirect("/login")
+            self.render("/login")
             return
 
         user.scope = data['scope']
         user.quota = data['quota']
         user.save()
-        self.write_response(content=user.format_response(), status_code=HTTP_201_CREATED)
+        # self.write_response(content=user.format_response(), status_code=HTTP_201_CREATED)
+        self.render("home.html")
         return
 
     def patch_schema(self):
@@ -124,7 +125,8 @@ class LoginHandler(BaseRequestHandler):
                                         utf8(user.hashed_password))
         if hashed_password == user.hashed_password:
             self.set_secure_cookie("shanbay_user", str(user.id))
-            self.redirect(self.get_argument("next", "/"))
+            self.render("home.html")
+            # self.redirect(self.get_argument("next", "/"))
         else:
             logging.error("incorrect password")
             self.render("login.html", error="incorrect password")
@@ -134,4 +136,5 @@ class LogoutHandler(BaseRequestHandler):
     def get(self):
         self.clear_cookie("shanbay_user")
         self.clear_cookie("record_id")
-        self.redirect(self.get_argument("next", "/"))
+        self.render("home.html")
+        # self.redirect(self.get_argument("next", "/"))

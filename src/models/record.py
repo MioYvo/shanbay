@@ -45,5 +45,15 @@ class Record(Document):
 
         for field in expect_fields:
             value = self[field]
+            if field == "words":
+                value = value[::-1]
             json_data[field] = field_to_json(value)
         return json_data
+
+    @property
+    def next_word(self):
+        next_word = "END"
+        for word in self.words:
+            if word['status'] == WORD_UNDONE:
+                next_word = word['word']
+        return next_word

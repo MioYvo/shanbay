@@ -16,7 +16,7 @@ from settings.app_setting import SETTINGS
 from settings.mongo_setting import MONGODB_NAME, MONGODB_CONFIG
 from mongoengine import connect
 
-define("port", default=5555, help="run on the given port", type=int)
+define("port", default=8888, help="run on the given port", type=int)
 
 
 class Application(tornado.web.Application):

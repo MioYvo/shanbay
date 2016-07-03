@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="row" id="start">
+    <a class="btn btn-lg btn-primary btn-block" href="/word/details/{{next_word}}" role="button">继续</a>
+</div>
+
+<div class="row" id="mainland">
+    <table class="table table-bordered table-hover">
+        {% for w in record['words'] %}
+            <tr>
+
+                <td>{{w["word"]}}</td>
+                <td>
+                    {% if w["status"] == "WORD_UNDONE" %}
+                        未完成
+                    {% else %}
+                        已完成
+                    {% end %}
+                </td>
+            </tr>
+        {% end %}
+    </table>
+</div>
+
+<!--<script>-->
+    <!--$(document).ready(function () {-->
+        <!--$('#start').click(function () {-->
+            <!--redirect_to_home("word/details/"+"{{next_word}}")-->
+        <!--});-->
+    <!--});-->
+
+<!--</script>-->
+
+
+{% end %}

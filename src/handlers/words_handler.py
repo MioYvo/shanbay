@@ -2,15 +2,12 @@
 # __author__ = 'Mio'
 import logging
 
-from bson import ObjectId
-from schema import Schema, Optional, Or
-from tornado.web import authenticated, Finish
+from tornado.web import authenticated
 from mongoengine import DoesNotExist, Q
 
 from tools.web.base import BaseRequestHandler
 from models.word import Word
 from models.record import Record, WORD_FINISHED, WORD_UNDONE
-from tools.web.escape import schema_utf8
 
 
 class ReciteWordsHandler(BaseRequestHandler):
@@ -26,7 +23,10 @@ class ReciteWordsHandler(BaseRequestHandler):
         # 获取上次未完成的背诵
         record = self.get_current_record()
         if record:
-            self.write_response(record.format_response())
+            # self.write_response(record.format_response())
+            next_word = record.next_word
+            self.set_secure_cookie("next_word", next_word)
+            self.render("recite.html", record=record.format_response(), next_word=next_word)
             return
 
         # 已背的单词们
@@ -68,7 +68,6 @@ class ReciteWordsHandler(BaseRequestHandler):
 
             }
         ]
-        from pymongo.command_cursor import CommandCursor
         logging.info(user.pk)
         recited_words = Record.objects(user=user, words__status=WORD_FINISHED).aggregate(*pipeline)
         # 如果有值, 会返回只拥有一个元素的列表
@@ -86,52 +85,43 @@ class ReciteWordsHandler(BaseRequestHandler):
             user=user, words=[{"word": word.word, "status": WORD_UNDONE} for word in wait_words]
         ).save()
         self.set_secure_cookie("record_id", str(new_record.id))
-        self.write_response(new_record.format_response())
+        next_word = new_record.words[0]['word']
+        self.set_secure_cookie("next_word", next_word)
+        # self.write_response(new_record.format_response())
+        self.render("recite.html", record=new_record.format_response(), next_word=next_word)
         return
 
 
 class OneWordReciteHandler(BaseRequestHandler):
     @authenticated
-    def post(self, word):
+    def get(self, word):
         """
         完成一个单词
         :param word:
         :return:
         """
-        user = self.get_current_user_mongo()
-        data = self.post_schema()
-        try:
-            Record.objects(
-                pk=ObjectId(data['record_id']),
-                user=user,
-                words__word=word
-            ).update_one(**{'set__words__$__status': WORD_FINISHED})
-        except DoesNotExist as e:
-            logging.exception(e)
-            self.write_error_response(e.message)
-            raise Finish
-        else:
-            # TODO 下一页 word
-            self.render("")
-            return
+        record = self.get_current_record()
+        for _word in record.words:
+            if _word['word'] == word:
+                _word['status'] = WORD_FINISHED
+                record.save()
+                break
 
-    def post_schema(self):
-        try:
-            data = Schema({
-                "record_id": schema_utf8,
-                Optional("to_status", default=WORD_FINISHED): Or(WORD_FINISHED, WORD_UNDONE)
-            }).validate(self.get_body_args())
-        except Exception as e:
-            logging.error(e)
-            self.write_parse_args_failed_response(content=e.message)
-            raise Finish
+        next_word = record.next_word
+        if next_word == "END":
+            self.render("end.html")
         else:
-            return data
+            _word = Word.objects(word=record.next_word).get()
+            self.render("word.html", word=_word.format_response(), error=None)
 
 
 class OneWordHandler(BaseRequestHandler):
     @authenticated
     def get(self, word):
+        if word == "END":
+            self.render("end.html")
+            return
+
         try:
             _word = Word.objects(word=word).get()
         except DoesNotExist:

@@ -18,25 +18,32 @@ class BaseRequestHandler(tornado.web.RequestHandler):
     def __init__(self, *args, **kwargs):
         super(BaseRequestHandler, self).__init__(*args, **kwargs)
 
+    def set_secure_cookie(self, name, value, expires_days=1, version=None, **kwargs):
+        super(BaseRequestHandler, self).set_secure_cookie(name, value, expires_days, version=None, **kwargs)
+
     def get_current_user(self):
         user_id = self.get_secure_cookie("shanbay_user")
         if not user_id:
-            self.redirect("/login")
-            raise tornado.web.Finish
+            # self.render("login.html")
+            # self.redirect("/login")
+            return None
+            # raise tornado.web.Finish
         user = User.objects(pk=ObjectId(user_id)).get()
         return user.name
 
     def get_current_user_mongo(self):
         user_id = self.get_secure_cookie("shanbay_user")
         if not user_id:
-            self.redirect("/login")
+            # self.redirect("/login")
+            self.render("login.html")
             raise tornado.web.Finish
         else:
             try:
                 user = User.objects(pk=ObjectId(user_id)).get()
             except DoesNotExist:
                 self.clear_cookie("shanbay_user")
-                self.redirect(self.get_argument("next", "/"))
+                # self.redirect(self.get_argument("next", "/"))
+                self.render("login.html")
                 raise tornado.web.Finish
             else:
                 return user
@@ -50,7 +57,8 @@ class BaseRequestHandler(tornado.web.RequestHandler):
                 record = Record.objects(pk=ObjectId(record_id)).get()
             except DoesNotExist:
                 self.clear_cookie("record_id")
-                self.redirect(self.get_argument("next", "/"))
+                # self.redirect(self.get_argument("next", "/"))
+                self.render("login.html")
                 raise tornado.web.Finish
             else:
                 return record
