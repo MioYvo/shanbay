@@ -56,5 +56,35 @@
             {% end %}
         </h4>
         {% end %}
+    {% end %}
+
+    <hr>
+    <hr>
+    {% if note_record %}
+
+        <p>my notes</p>
+        {% if current_user %}
+            {% for note in note_record["notes"] %}
+                {% if note["user"]["name"] == current_user %}
+                <p class="text-justify text-left">{{ note["content"] }}</p>
+                <h5 class="small text-right">
+                    create_time: {{note["create_time"]}}
+                </h5>
+                {% end %}
+            {% end %}
         {% end %}
+
+    {% end %}
+
+    <hr>
+    <p>other notes</p>
+    {% for note in note_record["notes"] %}
+            {% if note["user"]["name"] != current_user %}
+                <p class="text-info text-left">content: {{ note["content"] }}</p>
+                <h5 class="small text-right">
+                    user: {{ note["user"]["name"] }} &nbsp; &nbsp; create_time: {{note["create_time"]}}
+                </h5>
+                <br>
+            {% end %}
+    {% end %}
 {% end %}

@@ -5,7 +5,7 @@ import logging
 from tornado.web import authenticated
 from mongoengine import DoesNotExist, Q
 
-from tools.web.base import BaseRequestHandler
+from tools.web.base import BaseRequestHandler, WordHandler
 from models.word import Word
 from models.record import Record, WORD_FINISHED, WORD_UNDONE
 
@@ -91,7 +91,7 @@ class ReciteWordsHandler(BaseRequestHandler):
         return
 
 
-class OneWordReciteHandler(BaseRequestHandler):
+class OneWordReciteHandler(WordHandler):
     @authenticated
     def get(self, word):
         """
@@ -105,9 +105,9 @@ class OneWordReciteHandler(BaseRequestHandler):
                 _word = Word.objects(word=word).get()
             except DoesNotExist as e:
                 logging.error(e)
-                self.render("word.html", word=None, error="No word found, sorry", back_to_word=None)
+                self.render_word(word_content=None, error="No word found, sorry")
                 return
-            self.render("word.html", word=_word.format_response(), error=None, back_to_word=back_to_word)
+            self.render_word(word_content=_word.format_response(), back_to_word=back_to_word)
             return
         record = self.get_current_record()
         for _word in record.words:
@@ -121,10 +121,10 @@ class OneWordReciteHandler(BaseRequestHandler):
             self.render("end.html")
         else:
             _word = Word.objects(word=record.next_word).get()
-            self.render("word.html", word=_word.format_response(), error=None, back_to_word=None)
+            self.render_word(word_content=_word.format_response())
 
 
-class OneWordHandler(BaseRequestHandler):
+class OneWordHandler(WordHandler):
     @authenticated
     def get(self, word):
         if word == "END":
@@ -137,20 +137,23 @@ class OneWordHandler(BaseRequestHandler):
                 _word = Word.objects(word=word).get()
             except DoesNotExist as e:
                 logging.error(e)
-                self.render("word.html", word=None, error="No word found, sorry", back_to_word=None)
+                # self.render("word.html", word=None, error="No word found, sorry", back_to_word=None)
+                self.render_word(error="No word found, sorry")
                 return
-            self.render("word.html", word=_word.format_response(), error=None, back_to_word=back_to_word)
+            # self.render("word.html", word=_word.format_response(), error=None, back_to_word=back_to_word)
+            self.render_word(word_content=_word.format_response(), back_to_word=back_to_word)
             return
 
         try:
             _word = Word.objects(word=word).get()
         except DoesNotExist:
-            self.render("word.html", word=None, error="word '{}' not found, sorry".format(word), back_to_word=None)
+            # self.render("word.html", word=None, error="word '{}' not found, sorry".format(word), back_to_word=None)
+            self.render_word(error="word '{}' not found, sorry".format(word))
             return
 
         logging.info(_word)
         if _word:
-            self.render("word.html", word=_word.format_response(), error=None, back_to_word=None)
+            self.render_word(word_content=_word.format_response())
         else:
-            self.render("word.html", word=None, error="word {} not found, sorry".format(word), back_to_word=None)
+            self.render_word(error="word {} not found, sorry".format(word))
         return

@@ -11,6 +11,7 @@ from tools.web.error_code import ERR_UNKNOWN, ERR_NO_CONTENT, ERR_MULTIPLE_OBJ_R
 from tools.web.http_code import (HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_422_UNPROCESSABLE_ENTITY, HTTP_400_BAD_REQUEST,
                                  HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN)
 from models.user import User
+from models.note import Note
 from bson import ObjectId
 
 
@@ -210,3 +211,9 @@ class BaseRequestHandler(tornado.web.RequestHandler):
         if headers:
             for header in headers:
                 self.set_header(header, headers[header])
+
+
+class WordHandler(BaseRequestHandler):
+    def render_word(self, word_content=None, error=None, back_to_word=None):
+        note_record = Note.get_note(word_content["word"]) if word_content else None
+        self.render("word.html", word=word_content, error=error, back_to_word=back_to_word, note_record=note_record.format_response())
