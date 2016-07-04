@@ -12,9 +12,11 @@
         <div class="col-md-5">
             <h2>{{ word["word"] }}</h2>
         </div>
-            <!--<button class="btn btn-lg btn-info" href="/"> finish</button>-->
-            <a class="btn btn-lg btn-info" href="/words/recite/{{word["word"]}}" role="button">OK</a>
-            <button class="btn btn-lg btn-warning" href="/"> add to list</button>
+        {% if back_to_word %}
+        <a class="btn btn-lg btn-info" href="/word/details/{{back_to_word}}" role="button">Go back</a>
+        {% else %}
+        <a class="btn btn-lg btn-info" href="/words/recite/{{word["word"]}}" role="button">OK</a>
+        {% end %}
 
         <hr>
         <p>explanation</p>
@@ -45,8 +47,14 @@
         <!-- need format to url -->
         <hr>
         <p>synonyms</p>
-        {% for synonyms in word["synonyms"] %}
-        <h4>{{ synonyms }}</h4>
+        {% for synonyms in word["synonyms"][:2] %}
+        <h4>
+            {% if back_to_word %}
+            <p>{{ synonyms }}</p>
+            {% else %}
+            <a class="btn btn-lg btn-info" href="/word/details/{{ synonyms }}?back_to={{word["word"]}}" role="button">{{ synonyms }}</a>
+            {% end %}
+        </h4>
         {% end %}
         {% end %}
 {% end %}

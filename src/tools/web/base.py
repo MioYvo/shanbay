@@ -58,7 +58,8 @@ class BaseRequestHandler(tornado.web.RequestHandler):
             except DoesNotExist:
                 self.clear_cookie("record_id")
                 # self.redirect(self.get_argument("next", "/"))
-                self.render("login.html")
+                self.clear_all_cookies()
+                self.render("login.html", error="请重新登录")
                 raise tornado.web.Finish
             else:
                 return record

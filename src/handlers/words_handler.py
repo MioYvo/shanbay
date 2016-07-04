@@ -86,8 +86,7 @@ class ReciteWordsHandler(BaseRequestHandler):
         ).save()
         self.set_secure_cookie("record_id", str(new_record.id))
         next_word = new_record.words[0]['word']
-        self.set_secure_cookie("next_word", next_word)
-        # self.write_response(new_record.format_response())
+        # self.set_secure_cookie("next_word", next_word)
         self.render("recite.html", record=new_record.format_response(), next_word=next_word)
         return
 
@@ -100,6 +99,16 @@ class OneWordReciteHandler(BaseRequestHandler):
         :param word:
         :return:
         """
+        back_to_word = self.get_argument("back_to", None)
+        if back_to_word and back_to_word != word:
+            try:
+                _word = Word.objects(word=word).get()
+            except DoesNotExist as e:
+                logging.error(e)
+                self.render("word.html", word=None, error="No word found, sorry", back_to_word=None)
+                return
+            self.render("word.html", word=_word.format_response(), error=None, back_to_word=back_to_word)
+            return
         record = self.get_current_record()
         for _word in record.words:
             if _word['word'] == word:
@@ -112,7 +121,7 @@ class OneWordReciteHandler(BaseRequestHandler):
             self.render("end.html")
         else:
             _word = Word.objects(word=record.next_word).get()
-            self.render("word.html", word=_word.format_response(), error=None)
+            self.render("word.html", word=_word.format_response(), error=None, back_to_word=None)
 
 
 class OneWordHandler(BaseRequestHandler):
@@ -122,15 +131,26 @@ class OneWordHandler(BaseRequestHandler):
             self.render("end.html")
             return
 
+        back_to_word = self.get_argument("back_to", None)
+        if back_to_word and back_to_word != word:
+            try:
+                _word = Word.objects(word=word).get()
+            except DoesNotExist as e:
+                logging.error(e)
+                self.render("word.html", word=None, error="No word found, sorry", back_to_word=None)
+                return
+            self.render("word.html", word=_word.format_response(), error=None, back_to_word=back_to_word)
+            return
+
         try:
             _word = Word.objects(word=word).get()
         except DoesNotExist:
-            self.render("word.html", word=None, error="word '{}' not found, sorry".format(word))
+            self.render("word.html", word=None, error="word '{}' not found, sorry".format(word), back_to_word=None)
             return
 
         logging.info(_word)
         if _word:
-            self.render("word.html", word=_word.format_response(), error=None)
+            self.render("word.html", word=_word.format_response(), error=None, back_to_word=None)
         else:
-            self.render("word.html", word=None, error="word {} not found, sorry".format(word))
+            self.render("word.html", word=None, error="word {} not found, sorry".format(word), back_to_word=None)
         return
