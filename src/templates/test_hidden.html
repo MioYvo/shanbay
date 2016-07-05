@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js">
+</script>
+<script>
+$(document).ready(function(){
+  $("#hide").click(function(){
+    $("#add-note").hide();
+    $("#show").show();
+    $("#hide").hide();
+  });
+  $("#show").click(function(){
+    $("#add-note").show();
+    $("#show").hide();
+    $("#hide").show();
+  });
+});
+</script>
+</head>
+<body>
+    <form action="/word/{{word['word']}}/note" method="post" autocomplete="on" id="add-note" hidden>
+        new note:<input type="text" name="note" height="" maxlength=""/>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Add</button>
+    </form>
+<button id="show" >添加</button>
+<button id="hide" hidden>取消</button>
+</body>
+</html>

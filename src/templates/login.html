@@ -5,7 +5,8 @@
 {% end %}
 
 {% block body %}
-<form class="form-signin" action="/login" method="POST">
+<!--<form class="form-signin" action="/login" method="POST">-->
+<form class="form-signin">
     <h2 class="form-signin-heading">Please sign in</h2>
     {% if error %}
     <h4 class="form-signin-heading" style="color: red">Error: {{ error }}</h4>
@@ -14,6 +15,26 @@
         <input type="name" name="name" id="inputEmail" class="form-control" placeholder="User name" required autofocus>
         <label for="inputPassword" class="sr-only">Password</label>
         <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" id="submit">Sign in</button>
 </form>
+<script>
+    $(document).ready(function () {
+        $('#submit').click(function () {
+            var $form = $("form.form-signin");
+            var data = getFormData($form);
+            $.ajax({
+                type: "POST",
+                url: "/login",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (json) {
+                    $("#myAlert").show();
+                        window.location.href = '/';
+                }
+            });
+        });
+    });
+</script>
 {% end %}
+
+

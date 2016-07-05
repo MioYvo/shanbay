@@ -50,7 +50,7 @@
         {% for synonyms in word["synonyms"][:2] %}
         <h4>
             {% if back_to_word %}
-            <p>{{ synonyms }}</p>
+            {{ synonyms }}
             {% else %}
             <a class="btn btn-lg btn-info" href="/word/details/{{ synonyms }}?back_to={{word["word"]}}" role="button">{{ synonyms }}</a>
             {% end %}
@@ -60,9 +60,19 @@
 
     <hr>
     <hr>
-    {% if note_record %}
+    <p>my notes</p>
 
-        <p>my notes</p>
+    <form class="form-horizontal add-note" hidden>
+        new note:
+        <label>
+            <input type="text" name="note" height="" maxlength=""/>
+        </label>
+        <button class="btn" id="submit">Add</button>
+    </form>
+    <button id="show">New note</button>
+    <button id="hide" hidden>Cancel</button>
+    <p>
+    {% if note_record %}
         {% if current_user %}
             {% for note in note_record["notes"] %}
                 {% if note["user"]["name"] == current_user %}
@@ -73,7 +83,6 @@
                 {% end %}
             {% end %}
         {% end %}
-
     {% end %}
 
     <hr>
@@ -87,4 +96,32 @@
                 <br>
             {% end %}
     {% end %}
+<script>
+    $(document).ready(function () {
+        $('#submit').click(function () {
+            var $form = $("form.add-note");
+            var data = getFormData($form);
+            $.ajax({
+                type: "POST",
+                url: "/word/{{word['word']}}/note",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function () {
+                    location.reload();
+                }
+            });
+        });
+
+    $("#hide").click(function(){
+        $(".add-note").hide();
+        $("#show").show();
+        $("#hide").hide();
+      });
+      $("#show").click(function(){
+        $(".add-note").show();
+        $("#show").hide();
+        $("#hide").show();
+      });
+    });
+</script>
 {% end %}

@@ -114,7 +114,7 @@ class LoginHandler(BaseRequestHandler):
     def get(self):
         self.render("login.html", error=None)
 
-    def post(self):
+    def post_form(self):
         try:
             user = User.objects(name=self.get_argument('name')).get()
         except DoesNotExist:
@@ -130,6 +130,45 @@ class LoginHandler(BaseRequestHandler):
         else:
             logging.error("incorrect password")
             self.render("login.html", error="incorrect password")
+
+    def post(self):
+        data = self.post_schema()
+        name = data['name']
+        password = data['password']
+        try:
+            user = User.objects(name=name).get()
+        except DoesNotExist:
+            # 失败
+            self.write_not_found_entity_response()
+            # self.render("login.html", error="name not found")
+            return
+
+        hashed_password = bcrypt.hashpw(utf8(password),
+                                        utf8(user.hashed_password))
+        if hashed_password == user.hashed_password:
+            # 成功
+            self.set_secure_cookie("shanbay_user", str(user.id))
+            self.write_response(user.format_response())
+            return
+            # self.render("home.html")
+            # self.redirect(self.get_argument("next", "/"))
+        else:
+            logging.error("incorrect password")
+            self.render("login.html", error="incorrect password")
+            return
+
+    def post_schema(self):
+        try:
+            data = Schema({
+                "name": schema_utf8,
+                "password": schema_utf8
+            }).validate(self.get_body_args())
+        except Exception as e:
+            logging.error(e)
+            self.write_parse_args_failed_response(content=e.message)
+            raise Finish
+        else:
+            return data
 
 
 class LogoutHandler(BaseRequestHandler):

@@ -216,4 +216,5 @@ class BaseRequestHandler(tornado.web.RequestHandler):
 class WordHandler(BaseRequestHandler):
     def render_word(self, word_content=None, error=None, back_to_word=None):
         note_record = Note.get_note(word_content["word"]) if word_content else None
-        self.render("word.html", word=word_content, error=error, back_to_word=back_to_word, note_record=note_record.format_response())
+        self.render("word.html", word=word_content, error=error, back_to_word=back_to_word,
+                    note_record=note_record.format_response())
